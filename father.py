@@ -15,8 +15,8 @@ consumer_key=keys.api_key, consumer_secret=keys.api_key_secret,
 access_token=keys.access_token, access_token_secret=keys.access_token_secret)
 print("Connected.")
 
-replied_tweets_file = open("D:/github/father-klingot/replied_tweets", "r+")
-replied_tweets = [int(tweet_id) for tweet_id in replied_tweets_file.read().split()]
+replied_tweets = [int(tweet_id) for tweet_id in open("D:/github/father-klingot/replied_tweets", "r+").read().split()]
+print(replied_tweets)
 translator = trans()
 languages = list(lang)
 
@@ -29,6 +29,7 @@ while True:
         continue
 
     for reply_tweet in reply_tweets:
+        reply_id = reply_tweet
         scramble = notscramble = False
         if " scramble" in reply_tweet.text:
             scramble = True
@@ -44,13 +45,16 @@ while True:
         else:
             tweet = reply_tweet
             tweet.data.text = ' '.join(tweet.text.split()[2:])
-    
+        if not(tweet.data):
+            print("No new tweets mentioning father.")
+            sleep(60)
+            continue
         if tweet.data.id not in replied_tweets:
             replied_tweets.append(tweet.data.id)
             if len(replied_tweets) > 20:
                 replied_tweets.pop(0)
-            replied_tweets_file.truncate(0)
-            replied_tweets_file.write(' '.join([str(tweet) for tweet in replied_tweets]))
+            open("D:/github/father-klingot/replied_tweets", "r+").truncate(0)
+            open("D:/github/father-klingot/replied_tweets", "r+").write(' '.join([str(tweet) for tweet in replied_tweets]))
             if scramble:
                 shuffle(languages)
                 scrambled = tweet.data.text
@@ -60,16 +64,16 @@ while True:
                     except:
                         if scrambled != tweet.data.text:
                             client.create_tweet(text=scrambled[:279])
-                            client.create_tweet(text=scrambled[:279], in_reply_to_tweet_id=tweet.data.id)
+                            client.create_tweet(text=scrambled[:279], in_reply_to_tweet_id=reply_id)
                             print("Replied.")
                         else:
-                            client.create_tweet(text="there was an error generating my response :(", in_reply_to_tweet_id=tweet.data.id)
+                            client.create_tweet(text="there was an error generating my response :(", in_reply_to_tweet_id=reply_id)
                             print("Translation error.")
                             break
                 else:
                     scrambled = translator.translate(scrambled, dest="en").text
                     client.create_tweet(text=scrambled[:279])
-                    client.create_tweet(text=scrambled[:279], in_reply_to_tweet_id=tweet.data.id)
+                    client.create_tweet(text=scrambled[:279], in_reply_to_tweet_id=reply_id)
                     print("Replied.")
     
             elif notscramble:
@@ -88,7 +92,7 @@ while True:
                     notscrambled = notscrambled.replace(tweet.data.text,"")
                     notscrambled = f"... {notscrambled}"[:279]
                     client.create_tweet(text=notscrambled[:279])
-                    client.create_tweet(text=notscrambled[:279], in_reply_to_tweet_id=tweet.data.id)
+                    client.create_tweet(text=notscrambled[:279], in_reply_to_tweet_id=reply_id)
                     print("Replied.")
         else:
             print("No new tweets mentioning father.")
