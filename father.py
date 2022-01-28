@@ -24,8 +24,8 @@ while True:
     try:
         reply_tweets = [tweet for tweet in tweepy.Cursor(api.search_tweets, "@FatherKlingot").items(20)]
     except:
+        print("No new tweets mentioning father.")
         sleep(60)
-        print("No tweets mentioning father.")
         continue
 
     for reply_tweet in reply_tweets:
@@ -34,17 +34,22 @@ while True:
             scramble = True
         elif " notscramble" in reply_tweet.text:
             notscramble = True
+        else:
+            print("No new tweets mentioning father.")
+            sleep(60)
+            continue
     
         if reply_tweet._json["in_reply_to_status_id"]:
             tweet = client.get_tweet(id=reply_tweet._json["in_reply_to_status_id"])
         else:
             tweet = reply_tweet
-            tweet.data.text = ' '.join(tweet.data.text.split()[2:])
+            tweet.data.text = ' '.join(tweet.text.split()[2:])
     
         if tweet.data.id not in replied_tweets:
             replied_tweets.append(tweet.data.id)
             if len(replied_tweets) > 20:
                 replied_tweets.pop(0)
+            replied_tweets_file.truncate(0)
             replied_tweets_file.write(' '.join([str(tweet) for tweet in replied_tweets]))
             if scramble:
                 shuffle(languages)
@@ -62,6 +67,7 @@ while True:
                             print("Translation error.")
                             break
                 else:
+                    scrambled = translator.translate(scrambled, dest="en").text
                     client.create_tweet(text=scrambled[:279])
                     client.create_tweet(text=scrambled[:279], in_reply_to_tweet_id=tweet.data.id)
                     print("Replied.")
