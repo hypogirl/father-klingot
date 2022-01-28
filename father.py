@@ -29,7 +29,7 @@ while True:
         continue
 
     for reply_tweet in reply_tweets:
-        reply_id = reply_tweet
+        reply_id = reply_tweet.id
         scramble = notscramble = False
         if " scramble" in reply_tweet.text:
             scramble = True
@@ -90,7 +90,7 @@ while True:
                         print(notscrambled.json())
                 else:
                     notscrambled = notscrambled.replace(tweet.data.text,"")
-                    notscrambled = f"... {notscrambled}"[:279]
+                    notscrambled = notscrambled[:279]
                     client.create_tweet(text=notscrambled[:279])
                     client.create_tweet(text=notscrambled[:279], in_reply_to_tweet_id=reply_id)
                     print("Replied.")
