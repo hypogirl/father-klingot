@@ -80,8 +80,20 @@ while True:
                             break
                 else:
                     scrambled = translator.translate(scrambled, dest="en").text
-                    client.create_tweet(text=scrambled[:279])
-                    client.create_tweet(text=scrambled[:279], in_reply_to_tweet_id=reply_id)
+                    scrambled = scrambled.replace(tweet.data.text,"")
+                    scrambled_list = notscrambled.split()
+                    reply_tweet = str()
+                    profile_tweet = None
+                    for word in scrambled_list:
+                        reply_tweet += " " + word
+                        if len(reply_tweet) > 280:
+                            reply_tweet = reply_tweet.replace(word, "")
+                            reply_tweet = reply_tweet.replace(".", ". ")
+                            reply = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=reply_id)
+                            reply_id = int(reply.data["id"])
+                            if not(profile_tweet):
+                                profile_tweet = api.retweet(reply_id)
+                            reply_tweet = word
                     print("Replied.")
     
             elif notscramble:
@@ -98,9 +110,19 @@ while True:
                         print(notscrambled.json())
                 else:
                     notscrambled = notscrambled.replace(tweet.data.text,"")
-                    notscrambled = notscrambled[:279]
-                    client.create_tweet(text=notscrambled[:279])
-                    client.create_tweet(text=notscrambled[:279], in_reply_to_tweet_id=reply_id)
+                    notscrambled_list = notscrambled.split()
+                    reply_tweet = str()
+                    profile_tweet = None
+                    for word in notscrambled_list:
+                        reply_tweet += " " + word
+                        if len(reply_tweet) > 280:
+                            reply_tweet = reply_tweet.replace(word, "")
+                            reply_tweet = reply_tweet.replace(".", ". ")
+                            reply = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=reply_id)
+                            reply_id = int(reply.data["id"])
+                            if not(profile_tweet):
+                                profile_tweet = api.retweet(reply_id)
+                            reply_tweet = word
                     print("Replied.")
         else:
             print("No new tweets mentioning father.")
