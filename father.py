@@ -1,5 +1,6 @@
 import tweepy
 import requests
+import re
 from time import sleep
 from googletrans import Translator as trans
 from googletrans import LANGUAGES as lang
@@ -42,13 +43,20 @@ while True:
     
         if reply_tweet._json["in_reply_to_status_id"]:
             tweet = client.get_tweet(id=reply_tweet._json["in_reply_to_status_id"])
+            tweet.data.text = re.sub(r"@\w+[ |\n]", "", tweet.data.text)
         else:
             tweet = reply_tweet
-            tweet.data.text = ' '.join(tweet.text.split()[2:])
-        if not(tweet.data):
-            print("No new tweets mentioning father.")
-            sleep(60)
-            continue
+            tweet.text.replace("unscramble ","")
+            tweet.text.replace("scramble ","")
+            tweet.text = re.sub(r"@\w+[ |\n]", "", tweet.text)
+            tweet.data = lambda: None
+            setattr(tweet.data, 'id', tweet.id)
+            setattr(tweet.data, 'text', tweet.text)
+
+        #if not(tweet.data):
+        #    print("No new tweets mentioning father.")
+        #    sleep(60)
+        #    continue
         if tweet.data.id not in replied_tweets:
             replied_tweets.append(tweet.data.id)
             if len(replied_tweets) > 20:
