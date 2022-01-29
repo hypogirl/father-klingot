@@ -81,7 +81,7 @@ while True:
                 else:
                     scrambled = translator.translate(scrambled, dest="en").text
                     scrambled = scrambled.replace(tweet.data.text,"")
-                    scrambled_list = notscrambled.split()
+                    scrambled_list = scrambled.split()
                     reply_tweet = str()
                     profile_tweet = None
                     for word in scrambled_list:
@@ -89,10 +89,12 @@ while True:
                         if len(reply_tweet) > 280:
                             reply_tweet = reply_tweet.replace(word, "")
                             reply_tweet = reply_tweet.replace(".", ". ")
+                            if profile_tweet:
+                                profile_tweet = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=int(profile_tweet.data["id"]))
+                            else:
+                                profile_tweet = client.create_tweet(text=reply_tweet)
                             reply = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=reply_id)
                             reply_id = int(reply.data["id"])
-                            if not(profile_tweet):
-                                profile_tweet = api.retweet(reply_id)
                             reply_tweet = word
                     print("Replied.")
     
@@ -118,10 +120,12 @@ while True:
                         if len(reply_tweet) > 280:
                             reply_tweet = reply_tweet.replace(word, "")
                             reply_tweet = reply_tweet.replace(".", ". ")
+                            if profile_tweet:
+                                profile_tweet = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=int(profile_tweet.data["id"]))
+                            else:
+                                profile_tweet = client.create_tweet(text=reply_tweet)
                             reply = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=reply_id)
                             reply_id = int(reply.data["id"])
-                            if not(profile_tweet):
-                                profile_tweet = api.retweet(reply_id)
                             reply_tweet = word
                     print("Replied.")
         else:
