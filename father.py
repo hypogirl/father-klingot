@@ -1,3 +1,4 @@
+from os import system
 import tweepy
 import requests
 import re
@@ -25,6 +26,7 @@ while True:
     try:
         reply_tweets = [tweet for tweet in tweepy.Cursor(api.search_tweets, "@FatherKlingot").items(20)]
     except:
+        system("cls")
         print("No new tweets mentioning father.")
         sleep(60)
         continue
@@ -96,6 +98,7 @@ while True:
                 else:
                     client.create_tweet(text=scrambled)
                     client.create_tweet(text=scrambled, in_reply_to_tweet_id=reply_id)
+                system("cls")
                 print("Replied:", scrambled)
 
         elif notscramble:
@@ -127,7 +130,8 @@ while True:
                         reply = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=reply_id)
                         reply_id = int(reply.data["id"])
                         reply_tweet = word
+                system("cls")
                 print("Replied:", notscrambled)
-
+    system("cls")
     print("No new tweets mentioning father.")
     sleep(60)
