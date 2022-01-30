@@ -80,7 +80,6 @@ while True:
                             break
                 else:
                     scrambled = translator.translate(scrambled, dest="en").text
-                    scrambled = scrambled.replace(tweet.data.text,"")
                     scrambled_list = scrambled.split()
                     reply_tweet = str()
                     profile_tweet = None
@@ -96,6 +95,10 @@ while True:
                             reply = client.create_tweet(text=reply_tweet, in_reply_to_tweet_id=reply_id)
                             reply_id = int(reply.data["id"])
                             reply_tweet = word
+                            break
+                        else:
+                            client.create_tweet(text=scrambled)
+                            client.create_tweet(text=scrambled, in_reply_to_tweet_id=reply_id)
                     print("Replied.")
     
             elif notscramble:
